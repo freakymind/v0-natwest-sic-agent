@@ -15,5 +15,9 @@ export type SicDescription = {
   code: string
   title: string
   summary: string
-  activities: string[]
+  /**
+   * Additional / adjacent revenue streams that similar businesses commonly
+   * have alongside their primary SIC activity. Selected by the user.
+   */
+  relatedRevenueStreams: string[]
 }

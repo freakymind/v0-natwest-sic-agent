@@ -84,13 +84,13 @@ export function ConfirmStep({
             <p className="mt-3 text-sm leading-relaxed text-foreground/90 text-pretty">
               {description.summary}
             </p>
-            {description.activities.length > 0 && (
+            {description.relatedRevenueStreams.length > 0 && (
               <div className="mt-3">
                 <p className="text-xs font-medium text-muted-foreground">
-                  Activities
+                  Other revenue streams
                 </p>
                 <ul className="mt-1.5 flex flex-wrap gap-1.5">
-                  {description.activities.map((a) => (
+                  {description.relatedRevenueStreams.map((a) => (
                     <li
                       key={a}
                       className="rounded-full border border-primary/20 bg-background px-2.5 py-1 text-xs text-foreground"

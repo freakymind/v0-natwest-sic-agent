@@ -7,6 +7,7 @@ import {
   Pencil,
   Plus,
   Sparkles,
+  TrendingUp,
   X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -32,10 +33,10 @@ export function DescribeStep({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [summary, setSummary] = useState("")
-  const [activities, setActivities] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [customMode, setCustomMode] = useState(false)
-  const [customActivity, setCustomActivity] = useState("")
+  const [customInput, setCustomInput] = useState("")
   const [customList, setCustomList] = useState<string[]>([])
 
   useEffect(() => {
@@ -58,9 +59,10 @@ export function DescribeStep({
           setError(data.error)
         } else {
           setSummary(data.summary)
-          setActivities(data.activities ?? [])
-          // Pre-select the first two suggestions to nudge the user.
-          setSelected(new Set((data.activities ?? []).slice(0, 2)))
+          const streams: string[] = data.relatedRevenueStreams ?? []
+          setSuggestions(streams)
+          // Don't pre-select — these are *additional* streams, user opts in.
+          setSelected(new Set())
         }
       })
       .catch(() => !cancelled && setError("Couldn't generate a description."))
@@ -81,11 +83,11 @@ export function DescribeStep({
   }
 
   const addCustom = () => {
-    const v = customActivity.trim()
+    const v = customInput.trim()
     if (!v) return
     setCustomList((prev) => [...prev, v])
     setSelected((prev) => new Set(prev).add(v))
-    setCustomActivity("")
+    setCustomInput("")
   }
 
   const removeCustom = (v: string) => {
@@ -97,8 +99,8 @@ export function DescribeStep({
     })
   }
 
-  const allActivities = [...activities, ...customList]
-  const canConfirm = summary.trim().length > 0 && selected.size > 0
+  const allOptions = [...suggestions, ...customList]
+  const canConfirm = summary.trim().length > 0
 
   return (
     <div className="space-y-5">
@@ -132,7 +134,7 @@ export function DescribeStep({
               <Field>
                 <FieldLabel htmlFor="summary" className="flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                  AI-generated description
+                  What your business does
                   <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-normal text-muted-foreground">
                     <Pencil className="h-3 w-3" aria-hidden="true" />
                     You can edit
@@ -148,13 +150,18 @@ export function DescribeStep({
               </Field>
 
               <Field>
-                <FieldLabel>Typical activities</FieldLabel>
-                <p className="-mt-1 text-xs text-muted-foreground">
-                  Select the ones that apply, or add your own.
+                <FieldLabel className="flex items-center gap-1.5">
+                  <TrendingUp className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+                  Other revenue streams
+                </FieldLabel>
+                <p className="-mt-1 text-xs text-muted-foreground text-pretty">
+                  Common additional income sources for businesses similar to
+                  yours, including work done under closely related SIC codes.
+                  Select any that apply, or add your own.
                 </p>
 
                 <ul className="flex flex-wrap gap-2">
-                  {allActivities.map((a) => {
+                  {allOptions.map((a) => {
                     const isCustom = customList.includes(a)
                     const isSelected = selected.has(a)
                     return (
@@ -215,27 +222,27 @@ export function DescribeStep({
 
                 {customMode && (
                   <div className="flex flex-col gap-2 sm:flex-row">
-                    <label htmlFor="custom-activity" className="sr-only">
-                      Custom activity
+                    <label htmlFor="custom-stream" className="sr-only">
+                      Custom revenue stream
                     </label>
                     <input
-                      id="custom-activity"
+                      id="custom-stream"
                       type="text"
-                      value={customActivity}
-                      onChange={(e) => setCustomActivity(e.target.value)}
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault()
                           addCustom()
                         }
                       }}
-                      placeholder="Describe an activity in your own words"
+                      placeholder="Add another revenue stream"
                       className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <Button
                       type="button"
                       onClick={addCustom}
-                      disabled={!customActivity.trim()}
+                      disabled={!customInput.trim()}
                       variant="outline"
                     >
                       Add
@@ -257,7 +264,7 @@ export function DescribeStep({
                   code: sic.code,
                   title: sic.title,
                   summary: summary.trim(),
-                  activities: Array.from(selected),
+                  relatedRevenueStreams: Array.from(selected),
                 })
               }
               className="bg-primary text-primary-foreground hover:bg-primary/90"

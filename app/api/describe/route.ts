@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { generateText, Output } from "ai"
 import { z } from "zod"
 
-const schema = z.object({
+const primarySchema = z.object({
   summary: z
     .string()
     .describe(
@@ -17,21 +17,58 @@ const schema = z.object({
     ),
 })
 
+const secondarySchema = z.object({
+  summary: z
+    .string()
+    .describe(
+      "A concise 1-2 sentence description of the activity covered by this SIC code, written in second person as a secondary income stream. Start with a verb like 'You also…' or 'This covers…'. Plain English, no jargon.",
+    ),
+})
+
 export async function POST(req: Request) {
-  const { code, title, companyName } = (await req.json()) as {
+  const body = (await req.json()) as {
     code: string
     title: string
     companyName?: string
+    mode?: "primary" | "secondary"
+    primaryTitle?: string
   }
+
+  const { code, title, companyName, mode = "primary", primaryTitle } = body
 
   if (!code || !title) {
     return NextResponse.json({ error: "Missing code or title" }, { status: 400 })
   }
 
+  if (mode === "secondary") {
+    try {
+      const { experimental_output } = await generateText({
+        model: "openai/gpt-5-mini",
+        experimental_output: Output.object({ schema: secondarySchema }),
+        system:
+          "You help UK business customers describe additional income streams during bank onboarding. Be concise and plain-English. The user has multiple SIC codes registered — you are explaining ONE of the non-primary ones as an additional source of income.",
+        prompt: `Company: ${companyName ?? "(unnamed)"}\nPrimary activity: ${primaryTitle ?? "(unspecified)"}\n\nNow describe this OTHER registered activity as an additional income source for the same business:\nSIC code: ${code}\nOfficial title: ${title}`,
+      })
+
+      return NextResponse.json({
+        code,
+        title,
+        summary: experimental_output.summary,
+      })
+    } catch (err) {
+      console.log("[v0] describe secondary error:", (err as Error).message)
+      return NextResponse.json({
+        code,
+        title,
+        summary: `You also generate income from "${title}" (SIC ${code}) as an additional activity alongside your primary work.`,
+      })
+    }
+  }
+
   try {
     const { experimental_output } = await generateText({
       model: "openai/gpt-5-mini",
-      experimental_output: Output.object({ schema }),
+      experimental_output: Output.object({ schema: primarySchema }),
       system:
         "You help UK business customers describe their company to their bank during onboarding. Be concise, plain-English, and specific to UK SIC 2007 classifications. When suggesting additional revenue streams, focus on realistic adjacent income sources that similar businesses commonly add — not the core activity already covered by the SIC code.",
       prompt: `Company: ${companyName ?? "(unnamed)"}\nPrimary SIC code: ${code}\nOfficial title: ${title}\n\nFirst, generate a friendly description of the CORE activity for this SIC code.\nThen, list other revenue streams that similar UK businesses (or businesses in closely related SIC codes) commonly have ALONGSIDE this core activity.`,
@@ -45,7 +82,6 @@ export async function POST(req: Request) {
     })
   } catch (err) {
     console.log("[v0] describe error:", (err as Error).message)
-    // Graceful fallback so onboarding still works without AI.
     return NextResponse.json({
       code,
       title,

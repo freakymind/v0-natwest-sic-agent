@@ -3,6 +3,7 @@
 import {
   CheckCircle2,
   Building2,
+  Coins,
   Star,
   RotateCcw,
   Sparkles,
@@ -24,8 +25,6 @@ export function ConfirmStep({
   addedSics: SicMatch[]
   onRestart: () => void
 }) {
-  const otherCodes = profile.sic_codes.filter((c) => c.code !== primary.code)
-
   return (
     <Card className="border-border">
       <CardContent className="space-y-6 p-5">
@@ -112,6 +111,38 @@ export function ConfirmStep({
           </div>
         </section>
 
+        {description.secondary.length > 0 && (
+          <section className="space-y-2">
+            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <Coins className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+              Other registered income streams
+            </h3>
+            <ul className="space-y-2">
+              {description.secondary.map((s) => (
+                <li
+                  key={s.code}
+                  className="rounded-md border border-border bg-muted/40 p-4"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-xs font-semibold text-secondary-foreground">
+                      {s.code}
+                    </span>
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {s.section}
+                    </span>
+                    <span className="text-sm font-medium text-foreground text-pretty">
+                      {s.title}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground/85 text-pretty">
+                    {s.summary}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {addedSics.length > 0 && (
           <section className="space-y-2">
             <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -138,29 +169,6 @@ export function ConfirmStep({
                   <p className="mt-0.5 text-xs text-muted-foreground text-pretty">
                     {c.reason}
                   </p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {otherCodes.length > 0 && (
-          <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Other registered SIC codes
-            </h3>
-            <ul className="space-y-1.5">
-              {otherCodes.map((c) => (
-                <li
-                  key={c.code}
-                  className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-sm"
-                >
-                  <span className="font-mono text-xs font-semibold text-muted-foreground">
-                    {c.code}
-                  </span>
-                  <span className="text-foreground/80 text-pretty">
-                    {c.title}
-                  </span>
                 </li>
               ))}
             </ul>

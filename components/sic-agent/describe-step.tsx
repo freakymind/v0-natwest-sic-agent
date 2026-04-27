@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import {
   ArrowRight,
+  Coins,
   Loader2,
   Pencil,
   Plus,
@@ -17,15 +18,18 @@ import { Textarea } from "@/components/ui/textarea"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import type { SicCode } from "@/lib/sic-codes"
-import type { SicDescription } from "@/lib/types"
+import type { SecondarySicDescription, SicDescription } from "@/lib/types"
 
 export function DescribeStep({
   sic,
+  secondarySics,
   companyName,
   onBack,
   onConfirm,
 }: {
   sic: SicCode
+  /** Other SIC codes the company has registered — described as additional income streams. */
+  secondarySics: SicCode[]
   companyName: string
   onBack: () => void
   onConfirm: (result: SicDescription) => void
@@ -38,12 +42,17 @@ export function DescribeStep({
   const [customMode, setCustomMode] = useState(false)
   const [customInput, setCustomInput] = useState("")
   const [customList, setCustomList] = useState<string[]>([])
+  // code -> editable summary for each non-primary SIC
+  const [secondarySummaries, setSecondarySummaries] = useState<
+    Record<string, string>
+  >({})
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
     setError(null)
-    fetch("/api/describe", {
+
+    const primary = fetch("/api/describe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -51,19 +60,39 @@ export function DescribeStep({
         title: sic.title,
         companyName,
       }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
+    }).then((r) => r.json())
+
+    const secondaries = secondarySics.map((s) =>
+      fetch("/api/describe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: s.code,
+          title: s.title,
+          companyName,
+          mode: "secondary",
+          primaryTitle: sic.title,
+        }),
+      }).then((r) => r.json()),
+    )
+
+    Promise.all([primary, ...secondaries])
+      .then(([primaryData, ...secondaryData]) => {
         if (cancelled) return
-        if (data.error) {
-          setError(data.error)
-        } else {
-          setSummary(data.summary)
-          const streams: string[] = data.relatedRevenueStreams ?? []
-          setSuggestions(streams)
-          // Don't pre-select — these are *additional* streams, user opts in.
-          setSelected(new Set())
+        if (primaryData.error) {
+          setError(primaryData.error)
+          return
         }
+        setSummary(primaryData.summary)
+        const streams: string[] = primaryData.relatedRevenueStreams ?? []
+        setSuggestions(streams)
+        setSelected(new Set())
+
+        const map: Record<string, string> = {}
+        for (const sec of secondaryData) {
+          if (sec?.code) map[sec.code] = sec.summary ?? ""
+        }
+        setSecondarySummaries(map)
       })
       .catch(() => !cancelled && setError("Couldn't generate a description."))
       .finally(() => !cancelled && setLoading(false))
@@ -71,7 +100,8 @@ export function DescribeStep({
     return () => {
       cancelled = true
     }
-  }, [sic.code, sic.title, companyName])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sic.code, sic.title, companyName, secondarySics.map((s) => s.code).join(",")])
 
   const toggle = (a: string) => {
     setSelected((prev) => {
@@ -100,7 +130,27 @@ export function DescribeStep({
   }
 
   const allOptions = [...suggestions, ...customList]
-  const canConfirm = summary.trim().length > 0
+  const canConfirm =
+    summary.trim().length > 0 &&
+    secondarySics.every(
+      (s) => (secondarySummaries[s.code] ?? "").trim().length > 0,
+    )
+
+  const handleConfirm = () => {
+    const secondary: SecondarySicDescription[] = secondarySics.map((s) => ({
+      code: s.code,
+      title: s.title,
+      section: s.section,
+      summary: (secondarySummaries[s.code] ?? "").trim(),
+    }))
+    onConfirm({
+      code: sic.code,
+      title: sic.title,
+      summary: summary.trim(),
+      relatedRevenueStreams: Array.from(selected),
+      secondary,
+    })
+  }
 
   return (
     <div className="space-y-5">
@@ -114,6 +164,9 @@ export function DescribeStep({
               <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                 {sic.section}
               </span>
+              <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                Primary
+              </span>
             </div>
             <h2 className="font-serif text-xl font-semibold text-foreground text-balance">
               {sic.title}
@@ -123,7 +176,13 @@ export function DescribeStep({
           {loading ? (
             <div className="flex items-center gap-3 rounded-md border border-dashed border-border bg-muted/30 p-6 text-sm text-muted-foreground">
               <Spinner className="text-primary" />
-              <span>Generating a description for your business…</span>
+              <span>
+                Generating descriptions for your business
+                {secondarySics.length > 0
+                  ? ` and ${secondarySics.length} other registered ${secondarySics.length === 1 ? "activity" : "activities"}`
+                  : ""}
+                …
+              </span>
             </div>
           ) : error ? (
             <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
@@ -252,38 +311,90 @@ export function DescribeStep({
               </Field>
             </FieldGroup>
           )}
-
-          <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-between">
-            <Button variant="ghost" onClick={onBack} disabled={loading}>
-              Back
-            </Button>
-            <Button
-              disabled={!canConfirm || loading}
-              onClick={() =>
-                onConfirm({
-                  code: sic.code,
-                  title: sic.title,
-                  summary: summary.trim(),
-                  relatedRevenueStreams: Array.from(selected),
-                })
-              }
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                  Loading
-                </>
-              ) : (
-                <>
-                  Continue
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </>
-              )}
-            </Button>
-          </div>
         </CardContent>
       </Card>
+
+      {!loading && !error && secondarySics.length > 0 && (
+        <Card className="border-border">
+          <CardContent className="space-y-4 p-5">
+            <div className="flex items-start gap-2.5">
+              <Coins
+                className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+                aria-hidden="true"
+              />
+              <div className="space-y-0.5">
+                <h3 className="font-serif text-base font-semibold text-foreground">
+                  Your other income streams
+                </h3>
+                <p className="text-sm text-muted-foreground text-pretty">
+                  You also told Companies House that this business operates
+                  under {secondarySics.length} other SIC{" "}
+                  {secondarySics.length === 1 ? "code" : "codes"}. Review the
+                  description for each — you can edit anything that doesn&apos;t
+                  fit.
+                </p>
+              </div>
+            </div>
+
+            <FieldGroup>
+              {secondarySics.map((s) => (
+                <Field key={s.code}>
+                  <FieldLabel
+                    htmlFor={`sec-${s.code}`}
+                    className="flex flex-wrap items-center gap-2"
+                  >
+                    <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-xs font-semibold text-secondary-foreground">
+                      {s.code}
+                    </span>
+                    <span className="text-sm font-medium text-foreground text-pretty">
+                      {s.title}
+                    </span>
+                    <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-normal text-muted-foreground">
+                      <Pencil className="h-3 w-3" aria-hidden="true" />
+                      Editable
+                    </span>
+                  </FieldLabel>
+                  <Textarea
+                    id={`sec-${s.code}`}
+                    rows={2}
+                    value={secondarySummaries[s.code] ?? ""}
+                    onChange={(e) =>
+                      setSecondarySummaries((prev) => ({
+                        ...prev,
+                        [s.code]: e.target.value,
+                      }))
+                    }
+                    className="resize-y"
+                  />
+                </Field>
+              ))}
+            </FieldGroup>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+        <Button variant="ghost" onClick={onBack} disabled={loading}>
+          Back
+        </Button>
+        <Button
+          disabled={!canConfirm || loading}
+          onClick={handleConfirm}
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              Loading
+            </>
+          ) : (
+            <>
+              Continue
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   )
 }

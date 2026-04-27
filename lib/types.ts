@@ -11,6 +11,19 @@ export type CompanyProfile = {
   source: "companies-house" | "mock"
 }
 
+/**
+ * A short editable description for a non-primary registered SIC code.
+ * Generated when the company has multiple SIC codes — the user has told us
+ * they make money from each of them, so we describe them as additional
+ * income streams.
+ */
+export type SecondarySicDescription = {
+  code: string
+  title: string
+  section: string
+  summary: string
+}
+
 export type SicDescription = {
   code: string
   title: string
@@ -20,6 +33,12 @@ export type SicDescription = {
    * have alongside their primary SIC activity. Selected by the user.
    */
   relatedRevenueStreams: string[]
+  /**
+   * Descriptions for the company's other registered SIC codes (when more
+   * than one was filed at Companies House). The user has confirmed these
+   * are real income streams for the business.
+   */
+  secondary: SecondarySicDescription[]
 }
 
 /**

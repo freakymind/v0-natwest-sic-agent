@@ -90,6 +90,9 @@ export default function Page() {
           {step === "describe" && profile && primary && (
             <DescribeStep
               sic={primary}
+              secondarySics={profile.sic_codes.filter(
+                (s) => s.code !== primary.code,
+              )}
               companyName={profile.company_name}
               onBack={() => setStep(skipPrimary ? "lookup" : "primary")}
               onConfirm={handleDescription}

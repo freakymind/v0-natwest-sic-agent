@@ -1,12 +1,18 @@
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export type StepKey = "lookup" | "primary" | "describe" | "confirm"
+export type StepKey =
+  | "lookup"
+  | "primary"
+  | "describe"
+  | "refine"
+  | "confirm"
 
 const STEPS: { key: StepKey; label: string }[] = [
   { key: "lookup", label: "Company" },
   { key: "primary", label: "Primary activity" },
   { key: "describe", label: "Describe" },
+  { key: "refine", label: "Refine SICs" },
   { key: "confirm", label: "Confirm" },
 ]
 

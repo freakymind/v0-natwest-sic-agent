@@ -21,3 +21,14 @@ export type SicDescription = {
    */
   relatedRevenueStreams: string[]
 }
+
+/**
+ * A SIC code suggested by the AI matcher based on the user's description.
+ * Resolved against the catalog so title/section come from a trusted source.
+ */
+export type SicMatch = {
+  code: string
+  title: string
+  section: string
+  reason: string
+}

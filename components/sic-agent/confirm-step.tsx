@@ -1,19 +1,27 @@
 "use client"
 
-import { CheckCircle2, Building2, Star, RotateCcw } from "lucide-react"
+import {
+  CheckCircle2,
+  Building2,
+  Star,
+  RotateCcw,
+  Sparkles,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import type { CompanyProfile, SicDescription } from "@/lib/types"
+import type { CompanyProfile, SicDescription, SicMatch } from "@/lib/types"
 
 export function ConfirmStep({
   profile,
   primary,
   description,
+  addedSics,
   onRestart,
 }: {
   profile: CompanyProfile
   primary: { code: string; title: string }
   description: SicDescription
+  addedSics: SicMatch[]
   onRestart: () => void
 }) {
   const otherCodes = profile.sic_codes.filter((c) => c.code !== primary.code)
@@ -103,6 +111,38 @@ export function ConfirmStep({
             )}
           </div>
         </section>
+
+        {addedSics.length > 0 && (
+          <section className="space-y-2">
+            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+              Added based on your description
+            </h3>
+            <ul className="space-y-2">
+              {addedSics.map((c) => (
+                <li
+                  key={c.code}
+                  className="rounded-md border border-accent/30 bg-accent/5 p-3"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-md bg-accent/15 px-2 py-0.5 font-mono text-xs font-semibold text-accent">
+                      {c.code}
+                    </span>
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {c.section}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm font-medium text-foreground text-pretty">
+                    {c.title}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground text-pretty">
+                    {c.reason}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {otherCodes.length > 0 && (
           <section className="space-y-2">

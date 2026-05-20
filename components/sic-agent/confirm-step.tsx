@@ -7,24 +7,59 @@ import {
   Star,
   RotateCcw,
   Sparkles,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Hash,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import type { CompanyProfile, SicDescription, SicMatch } from "@/lib/types"
+import { cn } from "@/lib/utils"
+import type {
+  CompanyProfile,
+  SicDescription,
+  SicMatch,
+  SelectedActivity,
+} from "@/lib/types"
+
+const RiskBadge = ({ level }: { level: "low" | "medium" | "high" }) => {
+  const Icon =
+    level === "low" ? ShieldCheck : level === "medium" ? Shield : ShieldAlert
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
+        level === "low" && "bg-green-100 text-green-700",
+        level === "medium" && "bg-amber-100 text-amber-700",
+        level === "high" && "bg-red-100 text-red-700"
+      )}
+    >
+      <Icon className="h-3 w-3" />
+      {level} risk
+    </span>
+  )
+}
 
 export function ConfirmStep({
   profile,
   primary,
   description,
+  activities,
   addedSics,
   onRestart,
 }: {
   profile: CompanyProfile
   primary: { code: string; title: string }
   description: SicDescription
+  activities: SelectedActivity[]
   addedSics: SicMatch[]
   onRestart: () => void
 }) {
+  const primaryActivity = activities.find((a) => a.sicCode === primary.code)
+  const secondaryActivities = activities.filter(
+    (a) => a.sicCode !== primary.code
+  )
+
   return (
     <Card className="border-border">
       <CardContent className="space-y-6 p-5">
@@ -39,7 +74,7 @@ export function ConfirmStep({
             </p>
             <p className="text-sm text-foreground/80">
               Please review the summary below. We&apos;ll attach this to your
-              business profile.
+              business profile for compliance purposes.
             </p>
           </div>
         </div>
@@ -91,6 +126,25 @@ export function ConfirmStep({
             <p className="mt-3 text-sm leading-relaxed text-foreground/90 text-pretty">
               {description.summary}
             </p>
+
+            {primaryActivity && (
+              <div className="mt-3 rounded-md border border-primary/20 bg-background p-3">
+                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  <Hash className="h-3 w-3" aria-hidden="true" />
+                  Activity code
+                </div>
+                <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                  <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-sm font-semibold text-primary">
+                    {primaryActivity.activityCode}
+                  </span>
+                  <span className="text-sm text-foreground">
+                    {primaryActivity.activityLabel}
+                  </span>
+                  <RiskBadge level={primaryActivity.riskLevel} />
+                </div>
+              </div>
+            )}
+
             {description.relatedRevenueStreams.length > 0 && (
               <div className="mt-3">
                 <p className="text-xs font-medium text-muted-foreground">
@@ -118,27 +172,44 @@ export function ConfirmStep({
               Other registered income streams
             </h3>
             <ul className="space-y-2">
-              {description.secondary.map((s) => (
-                <li
-                  key={s.code}
-                  className="rounded-md border border-border bg-muted/40 p-4"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-xs font-semibold text-secondary-foreground">
-                      {s.code}
-                    </span>
-                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                      {s.section}
-                    </span>
-                    <span className="text-sm font-medium text-foreground text-pretty">
-                      {s.title}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-foreground/85 text-pretty">
-                    {s.summary}
-                  </p>
-                </li>
-              ))}
+              {description.secondary.map((s) => {
+                const act = secondaryActivities.find(
+                  (a) => a.sicCode === s.code
+                )
+                return (
+                  <li
+                    key={s.code}
+                    className="rounded-md border border-border bg-muted/40 p-4"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-xs font-semibold text-secondary-foreground">
+                        {s.code}
+                      </span>
+                      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        {s.section}
+                      </span>
+                      <span className="text-sm font-medium text-foreground text-pretty">
+                        {s.title}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-foreground/85 text-pretty">
+                      {s.summary}
+                    </p>
+                    {act && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 rounded bg-background px-2 py-1.5 text-xs">
+                        <Hash className="h-3 w-3 text-muted-foreground" />
+                        <span className="font-mono font-semibold text-secondary-foreground">
+                          {act.activityCode}
+                        </span>
+                        <span className="text-foreground/80">
+                          {act.activityLabel}
+                        </span>
+                        <RiskBadge level={act.riskLevel} />
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
           </section>
         )}

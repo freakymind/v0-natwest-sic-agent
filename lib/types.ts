@@ -1,4 +1,5 @@
 import type { SicCode } from "./sic-codes"
+import type { ActivityCode } from "./activity-codes"
 
 export type CompanyProfile = {
   company_number: string
@@ -50,4 +51,26 @@ export type SicMatch = {
   title: string
   section: string
   reason: string
+}
+
+/**
+ * Activity code suggestion from AI, with confidence level.
+ */
+export type ActivitySuggestion = {
+  code: string
+  label: string
+  riskLevel: "low" | "medium" | "high"
+  confidence: "high" | "medium" | "low"
+  reason: string
+}
+
+/**
+ * Selected activity code for a SIC code (primary or secondary).
+ */
+export type SelectedActivity = {
+  sicCode: string
+  sicTitle: string
+  activityCode: string
+  activityLabel: string
+  riskLevel: "low" | "medium" | "high"
 }

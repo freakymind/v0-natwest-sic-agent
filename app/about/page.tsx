@@ -62,6 +62,11 @@ const steps = [
     body: "AI turns the SIC into a clear, editable description of what the business actually does, plus typical adjacent revenue streams to confirm or skip.",
   },
   {
+    icon: Shield,
+    title: "Select specific activity codes",
+    body: "Each SIC maps to multiple 6-digit activity codes for risk/compliance. The AI pre-selects the best match based on your description — just confirm or pick another.",
+  },
+  {
     icon: Sparkles,
     title: "Refine with smart matches",
     body: "The agent reads the user's edited description and suggests additional SIC codes from a curated catalog that match what they actually wrote.",
@@ -69,7 +74,7 @@ const steps = [
   {
     icon: ListChecks,
     title: "Confirm a complete picture",
-    body: "All registered SICs, the chosen primary, agent-suggested additions, and revenue streams are summarised in one place for the customer to confirm.",
+    body: "All registered SICs, activity codes with risk levels, agent-suggested additions, and revenue streams are summarised in one place for the customer to confirm.",
   },
 ]
 
@@ -169,7 +174,7 @@ export default function AboutPage() {
               How it works
             </p>
             <h2 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">
-              Five steps from company number to confirmed activity
+              Six steps from company number to confirmed activity
             </h2>
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
               The agent guides the customer through a short conversation. Each
@@ -254,6 +259,15 @@ export default function AboutPage() {
               </p>
               <p>
                 <span className="font-medium text-foreground">
+                  SIC to Activity Code mapping
+                </span>{" "}
+                bridges the ~600 public SIC codes to ~1,200 internal 6-digit
+                activity codes used for risk and compliance classification. The
+                AI suggests the most likely activity based on what the customer
+                wrote, turning a scroll-heavy dropdown into a one-click confirm.
+              </p>
+              <p>
+                <span className="font-medium text-foreground">
                   AI SDK with structured output
                 </span>{" "}
                 turns each SIC into a friendly description, suggests adjacent
@@ -263,8 +277,8 @@ export default function AboutPage() {
               </p>
               <p>
                 The customer always has the final say. Every description,
-                revenue stream and SIC suggestion is editable, removable or
-                replaceable with a custom entry before confirmation.
+                revenue stream, activity code and SIC suggestion is editable,
+                removable or replaceable with a custom entry before confirmation.
               </p>
             </CardContent>
           </Card>

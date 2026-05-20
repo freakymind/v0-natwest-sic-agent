@@ -7,13 +7,11 @@ import { LookupStep } from "@/components/sic-agent/lookup-step"
 import { PrimaryStep } from "@/components/sic-agent/primary-step"
 import { DescribeStep } from "@/components/sic-agent/describe-step"
 import { ActivitiesStep } from "@/components/sic-agent/activities-step"
-import { RefineStep } from "@/components/sic-agent/refine-step"
 import { ConfirmStep } from "@/components/sic-agent/confirm-step"
 import { CompanyBanner } from "@/components/sic-agent/company-banner"
 import type {
   CompanyProfile,
   SicDescription,
-  SicMatch,
   SelectedActivity,
 } from "@/lib/types"
 import type { SicCode } from "@/lib/sic-codes"
@@ -24,7 +22,6 @@ export default function Page() {
   const [primary, setPrimary] = useState<SicCode | null>(null)
   const [description, setDescription] = useState<SicDescription | null>(null)
   const [activities, setActivities] = useState<SelectedActivity[]>([])
-  const [addedSics, setAddedSics] = useState<SicMatch[]>([])
 
   const skipPrimary = !profile || profile.sic_codes.length <= 1
 
@@ -60,12 +57,6 @@ export default function Page() {
 
   const handleActivities = (selected: SelectedActivity[]) => {
     setActivities(selected)
-    setAddedSics([])
-    setStep("refine")
-  }
-
-  const handleRefine = (added: SicMatch[]) => {
-    setAddedSics(added)
     setStep("confirm")
   }
 
@@ -74,7 +65,6 @@ export default function Page() {
     setPrimary(null)
     setDescription(null)
     setActivities([])
-    setAddedSics([])
     setStep("lookup")
   }
 
@@ -120,25 +110,12 @@ export default function Page() {
             />
           )}
 
-          {step === "refine" && profile && primary && description && (
-            <RefineStep
-              summary={description.summary}
-              primaryCode={primary.code}
-              primaryTitle={primary.title}
-              revenueStreams={description.relatedRevenueStreams}
-              registeredCodes={profile.sic_codes.map((s) => s.code)}
-              onBack={() => setStep("activities")}
-              onContinue={handleRefine}
-            />
-          )}
-
           {step === "confirm" && profile && primary && description && (
             <ConfirmStep
               profile={profile}
               primary={primary}
               description={description}
               activities={activities}
-              addedSics={addedSics}
               onRestart={restart}
             />
           )}

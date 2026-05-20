@@ -8,7 +8,6 @@ import {
   ListChecks,
   MessageSquareText,
   Shield,
-  Sparkles,
   Wand2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -67,14 +66,9 @@ const steps = [
     body: "Each SIC maps to multiple 6-digit activity codes for risk/compliance. The AI pre-selects the best match based on your description — just confirm or pick another.",
   },
   {
-    icon: Sparkles,
-    title: "Refine with smart matches",
-    body: "The agent reads the user's edited description and suggests additional SIC codes from a curated catalog that match what they actually wrote.",
-  },
-  {
     icon: ListChecks,
     title: "Confirm a complete picture",
-    body: "All registered SICs, activity codes with risk levels, agent-suggested additions, and revenue streams are summarised in one place for the customer to confirm.",
+    body: "All registered SICs, activity codes with risk levels, and revenue streams are summarised in one place for the customer to confirm.",
   },
 ]
 
@@ -174,7 +168,7 @@ export default function AboutPage() {
               How it works
             </p>
             <h2 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">
-              Six steps from company number to confirmed activity
+              Five steps from company number to confirmed activity
             </h2>
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
               The agent guides the customer through a short conversation. Each
@@ -270,14 +264,13 @@ export default function AboutPage() {
                 <span className="font-medium text-foreground">
                   AI SDK with structured output
                 </span>{" "}
-                turns each SIC into a friendly description, suggests adjacent
-                revenue streams that similar businesses earn from, and matches
-                the customer&apos;s edited description against a curated SIC
-                catalog to surface codes they may have missed.
+                turns each SIC into a friendly description and suggests adjacent
+                revenue streams that similar businesses earn from, giving the bank
+                a richer picture of the customer&apos;s real operations.
               </p>
               <p>
                 The customer always has the final say. Every description,
-                revenue stream, activity code and SIC suggestion is editable,
+                revenue stream, and activity code selection is editable,
                 removable or replaceable with a custom entry before confirmation.
               </p>
             </CardContent>

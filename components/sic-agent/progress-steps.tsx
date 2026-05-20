@@ -6,7 +6,6 @@ export type StepKey =
   | "primary"
   | "describe"
   | "activities"
-  | "refine"
   | "confirm"
 
 const STEPS: { key: StepKey; label: string }[] = [
@@ -14,7 +13,6 @@ const STEPS: { key: StepKey; label: string }[] = [
   { key: "primary", label: "Primary activity" },
   { key: "describe", label: "Describe" },
   { key: "activities", label: "Activity codes" },
-  { key: "refine", label: "Refine SICs" },
   { key: "confirm", label: "Confirm" },
 ]
 

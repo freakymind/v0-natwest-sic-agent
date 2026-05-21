@@ -42,9 +42,9 @@ export async function POST(req: Request) {
 
   if (mode === "secondary") {
     try {
-      const { experimental_output } = await generateText({
-        model: "openai/gpt-5-mini",
-        experimental_output: Output.object({ schema: secondarySchema }),
+      const { output } = await generateText({
+        model: "openai/gpt-4o-mini",
+        output: Output.object({ schema: secondarySchema }),
         system:
           "You help UK business customers describe additional income streams during bank onboarding. Be concise and plain-English. The user has multiple SIC codes registered — you are explaining ONE of the non-primary ones as an additional source of income.",
         prompt: `Company: ${companyName ?? "(unnamed)"}\nPrimary activity: ${primaryTitle ?? "(unspecified)"}\n\nNow describe this OTHER registered activity as an additional income source for the same business:\nSIC code: ${code}\nOfficial title: ${title}`,
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       return NextResponse.json({
         code,
         title,
-        summary: experimental_output.summary,
+        summary: output?.summary ?? `You also generate income from "${title}" (SIC ${code}).`,
       })
     } catch (err) {
       console.log("[v0] describe secondary error:", (err as Error).message)
@@ -66,9 +66,9 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { experimental_output } = await generateText({
-      model: "openai/gpt-5-mini",
-      experimental_output: Output.object({ schema: primarySchema }),
+    const { output } = await generateText({
+      model: "openai/gpt-4o-mini",
+      output: Output.object({ schema: primarySchema }),
       system:
         "You help UK business customers describe their company to their bank during onboarding. Be concise, plain-English, and specific to UK SIC 2007 classifications. When suggesting additional revenue streams, focus on realistic adjacent income sources that similar businesses commonly add — not the core activity already covered by the SIC code.",
       prompt: `Company: ${companyName ?? "(unnamed)"}\nPrimary SIC code: ${code}\nOfficial title: ${title}\n\nFirst, generate a friendly description of the CORE activity for this SIC code.\nThen, list other revenue streams that similar UK businesses (or businesses in closely related SIC codes) commonly have ALONGSIDE this core activity.`,
@@ -77,8 +77,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       code,
       title,
-      summary: experimental_output.summary,
-      relatedRevenueStreams: experimental_output.relatedRevenueStreams,
+      summary: output?.summary ?? `Your business is classified under "${title}".`,
+      relatedRevenueStreams: output?.relatedRevenueStreams ?? [],
     })
   } catch (err) {
     console.log("[v0] describe error:", (err as Error).message)

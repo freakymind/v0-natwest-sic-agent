@@ -132,17 +132,17 @@ export const ACTIVITY_CODES: ActivityCode[] = [
   { code: "662203", sicCode: "66220", label: "Commercial insurance broker", riskLevel: "medium" },
   { code: "662204", sicCode: "66220", label: "Insurance comparison platform", riskLevel: "medium" },
 
-  // 41201 - Construction of domestic buildings
-  { code: "412011", sicCode: "41201", label: "House building (volume)", riskLevel: "low" },
-  { code: "412012", sicCode: "41201", label: "Bespoke / custom home building", riskLevel: "low" },
-  { code: "412013", sicCode: "41201", label: "Residential extensions", riskLevel: "low" },
-  { code: "412014", sicCode: "41201", label: "Property development (residential)", riskLevel: "medium" },
+  // 41201 - Construction of commercial buildings
+  { code: "412011", sicCode: "41201", label: "Office building construction", riskLevel: "low" },
+  { code: "412012", sicCode: "41201", label: "Retail / leisure construction", riskLevel: "low" },
+  { code: "412013", sicCode: "41201", label: "Industrial / warehouse construction", riskLevel: "low" },
+  { code: "412014", sicCode: "41201", label: "Mixed-use development", riskLevel: "medium" },
 
-  // 41202 - Construction of commercial buildings
-  { code: "412021", sicCode: "41202", label: "Office building construction", riskLevel: "low" },
-  { code: "412022", sicCode: "41202", label: "Retail / leisure construction", riskLevel: "low" },
-  { code: "412023", sicCode: "41202", label: "Industrial / warehouse construction", riskLevel: "low" },
-  { code: "412024", sicCode: "41202", label: "Mixed-use development", riskLevel: "medium" },
+  // 41202 - Construction of domestic buildings
+  { code: "412021", sicCode: "41202", label: "House building (volume)", riskLevel: "low" },
+  { code: "412022", sicCode: "41202", label: "Bespoke / custom home building", riskLevel: "low" },
+  { code: "412023", sicCode: "41202", label: "Residential extensions", riskLevel: "low" },
+  { code: "412024", sicCode: "41202", label: "Property development (residential)", riskLevel: "medium" },
 
   // 68100 - Buying and selling of own real estate
   { code: "681001", sicCode: "68100", label: "Residential property trading", riskLevel: "medium" },
@@ -253,6 +253,68 @@ export const ACTIVITY_CODES: ActivityCode[] = [
   { code: "551003", sicCode: "55100", label: "Boutique / luxury hotel", riskLevel: "low" },
   { code: "551004", sicCode: "55100", label: "Aparthotel", riskLevel: "low" },
   { code: "551005", sicCode: "55100", label: "Bed and breakfast", riskLevel: "low" },
+
+  // 56103 - Take-away food shops and mobile food stands
+  { code: "561031", sicCode: "56103", label: "Fast food takeaway", riskLevel: "low" },
+  { code: "561032", sicCode: "56103", label: "Bakery / pastry takeaway", riskLevel: "low" },
+  { code: "561033", sicCode: "56103", label: "Coffee / sandwich shop", riskLevel: "low" },
+  { code: "561034", sicCode: "56103", label: "Food truck / mobile catering", riskLevel: "low" },
+  { code: "561035", sicCode: "56103", label: "Delivery-only kitchen (dark kitchen)", riskLevel: "low" },
+
+  // 47190 - Other retail sale in non-specialised stores
+  { code: "471901", sicCode: "47190", label: "Department store", riskLevel: "low" },
+  { code: "471902", sicCode: "47190", label: "Variety store (non-food)", riskLevel: "low" },
+  { code: "471903", sicCode: "47190", label: "General merchandise retailer", riskLevel: "low" },
+  { code: "471904", sicCode: "47190", label: "Discount store", riskLevel: "low" },
+
+  // 47710 - Retail sale of clothing in specialised stores
+  { code: "477101", sicCode: "47710", label: "Fashion retailer (high street)", riskLevel: "low" },
+  { code: "477102", sicCode: "47710", label: "Designer / luxury clothing", riskLevel: "low" },
+  { code: "477103", sicCode: "47710", label: "Children's clothing store", riskLevel: "low" },
+  { code: "477104", sicCode: "47710", label: "Workwear / uniform retailer", riskLevel: "low" },
+  { code: "477105", sicCode: "47710", label: "Second-hand / vintage clothing", riskLevel: "low" },
+
+  // 61200 - Wireless telecommunications activities
+  { code: "612001", sicCode: "61200", label: "Mobile network operator", riskLevel: "medium" },
+  { code: "612002", sicCode: "61200", label: "MVNO (virtual network)", riskLevel: "medium" },
+  { code: "612003", sicCode: "61200", label: "Mobile broadband provider", riskLevel: "medium" },
+  { code: "612004", sicCode: "61200", label: "IoT / M2M connectivity", riskLevel: "low" },
+
+  // 61300 - Satellite telecommunications activities
+  { code: "613001", sicCode: "61300", label: "Satellite TV provider", riskLevel: "medium" },
+  { code: "613002", sicCode: "61300", label: "Satellite broadband provider", riskLevel: "medium" },
+  { code: "613003", sicCode: "61300", label: "Satellite ground services", riskLevel: "low" },
+
+  // 61900 - Other telecommunications activities
+  { code: "619001", sicCode: "61900", label: "Fixed-line telecoms provider", riskLevel: "medium" },
+  { code: "619002", sicCode: "61900", label: "VoIP / internet telephony", riskLevel: "medium" },
+  { code: "619003", sicCode: "61900", label: "Unified communications provider", riskLevel: "low" },
+  { code: "619004", sicCode: "61900", label: "Network infrastructure services", riskLevel: "low" },
+
+  // 70100 - Activities of head offices
+  { code: "701001", sicCode: "70100", label: "Group holding company", riskLevel: "low" },
+  { code: "701002", sicCode: "70100", label: "Corporate headquarters", riskLevel: "low" },
+  { code: "701003", sicCode: "70100", label: "Strategic management office", riskLevel: "low" },
+
+  // 06100 - Extraction of crude petroleum
+  { code: "061001", sicCode: "06100", label: "Onshore oil extraction", riskLevel: "high" },
+  { code: "061002", sicCode: "06100", label: "Offshore oil extraction", riskLevel: "high" },
+  { code: "061003", sicCode: "06100", label: "Oil field services", riskLevel: "high" },
+
+  // 06200 - Extraction of natural gas
+  { code: "062001", sicCode: "06200", label: "Natural gas extraction", riskLevel: "high" },
+  { code: "062002", sicCode: "06200", label: "LNG production", riskLevel: "high" },
+  { code: "062003", sicCode: "06200", label: "Gas field services", riskLevel: "high" },
+
+  // 19200 - Manufacture of refined petroleum products
+  { code: "192001", sicCode: "19200", label: "Oil refinery", riskLevel: "high" },
+  { code: "192002", sicCode: "19200", label: "Petrochemical processing", riskLevel: "high" },
+  { code: "192003", sicCode: "19200", label: "Fuel blending / distribution", riskLevel: "medium" },
+
+  // 46711 - Wholesale of petroleum and petroleum products
+  { code: "467111", sicCode: "46711", label: "Fuel wholesaler", riskLevel: "medium" },
+  { code: "467112", sicCode: "46711", label: "Lubricants / oils wholesaler", riskLevel: "medium" },
+  { code: "467113", sicCode: "46711", label: "Aviation fuel supplier", riskLevel: "medium" },
 ]
 
 /**

@@ -23,6 +23,17 @@ export type SecondarySicDescription = {
   title: string
   section: string
   summary: string
+  /**
+   * Whether this SIC code is filed at Companies House (true) or was derived
+   * from a revenue stream the user added during onboarding and is not yet
+   * registered (false). Registered codes are authoritative; declared codes
+   * are recorded as additional activities pending registration.
+   */
+  registered: boolean
+  /**
+   * For declared (non-registered) codes, the revenue stream that surfaced it.
+   */
+  sourceRevenueStream?: string
 }
 
 export type SicDescription = {
@@ -62,4 +73,19 @@ export type SelectedActivity = {
   activityCode: string
   activityLabel: string
   riskLevel: "low" | "medium" | "high"
+  /** Whether the parent SIC is registered at Companies House. */
+  registered: boolean
+}
+
+/**
+ * A SIC code derived from a user-added revenue stream that is NOT yet
+ * registered at Companies House. Suggested by AI, confirmed by the user.
+ */
+export type DerivedSicSuggestion = {
+  code: string
+  title: string
+  section: string
+  summary: string
+  sourceRevenueStream: string
+  confidence: "high" | "medium" | "low"
 }

@@ -28,6 +28,7 @@ type SicActivityGroup = {
   sicCode: string
   sicTitle: string
   isPrimary: boolean
+  registered: boolean
   summary: string
   availableCodes: ActivityCode[]
   suggestions: ActivitySuggestion[]
@@ -51,12 +52,14 @@ export function ActivitiesStep({
       code: description.code,
       title: description.title,
       isPrimary: true,
+      registered: true,
       summary: description.summary,
     },
     ...description.secondary.map((s) => ({
       code: s.code,
       title: s.title,
       isPrimary: false,
+      registered: s.registered,
       summary: s.summary,
     })),
   ]
@@ -66,6 +69,7 @@ export function ActivitiesStep({
       sicCode: sic.code,
       sicTitle: sic.title,
       isPrimary: sic.isPrimary,
+      registered: sic.registered,
       summary: sic.summary,
       availableCodes: getActivityCodesForSic(sic.code),
       suggestions: [],
@@ -175,6 +179,7 @@ export function ActivitiesStep({
           activityCode: act.code,
           activityLabel: act.label,
           riskLevel: act.riskLevel,
+          registered: g.registered,
         }
       })
     onContinue(selected)
@@ -270,6 +275,11 @@ export function ActivitiesStep({
                 {group.isPrimary && (
                   <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
                     Primary
+                  </span>
+                )}
+                {!group.registered && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                    Not registered
                   </span>
                 )}
               </div>

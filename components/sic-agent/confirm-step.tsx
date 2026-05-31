@@ -10,7 +10,10 @@ import {
   ShieldAlert,
   ShieldCheck,
   Hash,
+  BadgeCheck,
+  AlertTriangle,
 } from "lucide-react"
+import type { SecondarySicDescription } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -38,6 +41,60 @@ const RiskBadge = ({ level }: { level: "low" | "medium" | "high" }) => {
   )
 }
 
+function SecondaryItem({
+  sic,
+  activity,
+  declared = false,
+}: {
+  sic: SecondarySicDescription
+  activity?: SelectedActivity
+  declared?: boolean
+}) {
+  return (
+    <li
+      className={cn(
+        "rounded-md border p-4",
+        declared
+          ? "border-amber-200 bg-amber-50/50"
+          : "border-border bg-muted/40"
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-xs font-semibold text-secondary-foreground">
+          {sic.code}
+        </span>
+        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          {sic.section}
+        </span>
+        <span className="text-sm font-medium text-foreground text-pretty">
+          {sic.title}
+        </span>
+      </div>
+      <p className="mt-2 text-sm leading-relaxed text-foreground/85 text-pretty">
+        {sic.summary}
+      </p>
+      {declared && sic.sourceRevenueStream && (
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          From your revenue stream:{" "}
+          <span className="font-medium text-foreground/80">
+            {sic.sourceRevenueStream}
+          </span>
+        </p>
+      )}
+      {activity && (
+        <div className="mt-2 flex flex-wrap items-center gap-2 rounded bg-background px-2 py-1.5 text-xs">
+          <Hash className="h-3 w-3 text-muted-foreground" />
+          <span className="font-mono font-semibold text-secondary-foreground">
+            {activity.activityCode}
+          </span>
+          <span className="text-foreground/80">{activity.activityLabel}</span>
+          <RiskBadge level={activity.riskLevel} />
+        </div>
+      )}
+    </li>
+  )
+}
+
 export function ConfirmStep({
   profile,
   primary,
@@ -55,6 +112,8 @@ export function ConfirmStep({
   const secondaryActivities = activities.filter(
     (a) => a.sicCode !== primary.code
   )
+  const registeredSecondary = description.secondary.filter((s) => s.registered)
+  const declaredSecondary = description.secondary.filter((s) => !s.registered)
 
   // Overall client risk is driven by the highest-risk activity code selected.
   const risks = activities.map((a) => a.riskLevel)
@@ -223,51 +282,56 @@ export function ConfirmStep({
           </div>
         </section>
 
-        {description.secondary.length > 0 && (
+        {registeredSecondary.length > 0 && (
           <section className="space-y-2">
             <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               <Coins className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
               Other registered income streams
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold normal-case text-green-700">
+                <BadgeCheck className="h-3 w-3" aria-hidden="true" />
+                Companies House
+              </span>
             </h3>
             <ul className="space-y-2">
-              {description.secondary.map((s) => {
-                const act = secondaryActivities.find(
-                  (a) => a.sicCode === s.code
-                )
-                return (
-                  <li
-                    key={s.code}
-                    className="rounded-md border border-border bg-muted/40 p-4"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md bg-secondary px-2 py-0.5 font-mono text-xs font-semibold text-secondary-foreground">
-                        {s.code}
-                      </span>
-                      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                        {s.section}
-                      </span>
-                      <span className="text-sm font-medium text-foreground text-pretty">
-                        {s.title}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-foreground/85 text-pretty">
-                      {s.summary}
-                    </p>
-                    {act && (
-                      <div className="mt-2 flex flex-wrap items-center gap-2 rounded bg-background px-2 py-1.5 text-xs">
-                        <Hash className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-mono font-semibold text-secondary-foreground">
-                          {act.activityCode}
-                        </span>
-                        <span className="text-foreground/80">
-                          {act.activityLabel}
-                        </span>
-                        <RiskBadge level={act.riskLevel} />
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
+              {registeredSecondary.map((s) => (
+                <SecondaryItem
+                  key={s.code}
+                  sic={s}
+                  activity={secondaryActivities.find(
+                    (a) => a.sicCode === s.code
+                  )}
+                />
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {declaredSecondary.length > 0 && (
+          <section className="space-y-2">
+            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <Coins className="h-3.5 w-3.5 text-amber-500" aria-hidden="true" />
+              Declared activities
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold normal-case text-amber-700">
+                <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+                Not yet registered
+              </span>
+            </h3>
+            <p className="-mt-1 text-xs text-muted-foreground text-pretty">
+              Surfaced from the extra revenue streams you mentioned. These are
+              not filed at Companies House but are recorded against your profile
+              for risk assessment.
+            </p>
+            <ul className="space-y-2">
+              {declaredSecondary.map((s) => (
+                <SecondaryItem
+                  key={s.code}
+                  sic={s}
+                  activity={secondaryActivities.find(
+                    (a) => a.sicCode === s.code
+                  )}
+                  declared
+                />
+              ))}
             </ul>
           </section>
         )}

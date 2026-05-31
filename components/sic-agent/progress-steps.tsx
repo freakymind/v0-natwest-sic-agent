@@ -5,6 +5,7 @@ export type StepKey =
   | "lookup"
   | "primary"
   | "describe"
+  | "derive"
   | "activities"
   | "confirm"
 
@@ -12,6 +13,7 @@ const STEPS: { key: StepKey; label: string }[] = [
   { key: "lookup", label: "Company" },
   { key: "primary", label: "Primary activity" },
   { key: "describe", label: "Describe" },
+  { key: "derive", label: "Other activities" },
   { key: "activities", label: "Activity codes" },
   { key: "confirm", label: "Confirm" },
 ]
@@ -19,11 +21,17 @@ const STEPS: { key: StepKey; label: string }[] = [
 export function ProgressSteps({
   current,
   skipPrimary,
+  skipDerive,
 }: {
   current: StepKey
   skipPrimary: boolean
+  skipDerive: boolean
 }) {
-  const visible = STEPS.filter((s) => !(skipPrimary && s.key === "primary"))
+  const visible = STEPS.filter(
+    (s) =>
+      !(skipPrimary && s.key === "primary") &&
+      !(skipDerive && s.key === "derive")
+  )
   const currentIndex = visible.findIndex((s) => s.key === current)
 
   return (

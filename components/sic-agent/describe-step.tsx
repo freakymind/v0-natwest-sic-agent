@@ -142,6 +142,7 @@ export function DescribeStep({
       title: s.title,
       section: s.section,
       summary: (secondarySummaries[s.code] ?? "").trim(),
+      registered: true,
     }))
     onConfirm({
       code: sic.code,

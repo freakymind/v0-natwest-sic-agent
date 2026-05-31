@@ -6,6 +6,7 @@ import { ProgressSteps, type StepKey } from "@/components/sic-agent/progress-ste
 import { LookupStep } from "@/components/sic-agent/lookup-step"
 import { PrimaryStep } from "@/components/sic-agent/primary-step"
 import { DescribeStep } from "@/components/sic-agent/describe-step"
+import { DeriveStep } from "@/components/sic-agent/derive-step"
 import { ActivitiesStep } from "@/components/sic-agent/activities-step"
 import { ConfirmStep } from "@/components/sic-agent/confirm-step"
 import { CompanyBanner } from "@/components/sic-agent/company-banner"
@@ -24,6 +25,10 @@ export default function Page() {
   const [activities, setActivities] = useState<SelectedActivity[]>([])
 
   const skipPrimary = !profile || profile.sic_codes.length <= 1
+  // The "Other activities" step only applies once the user has added revenue
+  // streams that could map to new (unregistered) SIC codes.
+  const skipDerive =
+    !description || description.relatedRevenueStreams.length === 0
 
   const handleResolved = (p: CompanyProfile) => {
     setProfile(p)
@@ -52,6 +57,13 @@ export default function Page() {
   const handleDescription = (d: SicDescription) => {
     setDescription(d)
     setActivities([])
+    // If the user added extra revenue streams, check whether they map to new
+    // (unregistered) SIC codes before moving on to activity codes.
+    setStep(d.relatedRevenueStreams.length > 0 ? "derive" : "activities")
+  }
+
+  const handleDerived = (d: SicDescription) => {
+    setDescription(d)
     setStep("activities")
   }
 
@@ -74,7 +86,11 @@ export default function Page() {
 
       <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="mb-6">
-          <ProgressSteps current={step} skipPrimary={skipPrimary} />
+          <ProgressSteps
+            current={step}
+            skipPrimary={skipPrimary}
+            skipDerive={skipDerive}
+          />
         </div>
 
         <div className="space-y-5">
@@ -102,10 +118,23 @@ export default function Page() {
             />
           )}
 
+          {step === "derive" && profile && primary && description && (
+            <DeriveStep
+              description={description}
+              registeredCodes={profile.sic_codes
+                .map((s) => s.code)
+                .concat(primary.code)
+                .filter((c, i, arr) => arr.indexOf(c) === i)}
+              companyName={profile.company_name}
+              onBack={() => setStep("describe")}
+              onConfirm={handleDerived}
+            />
+          )}
+
           {step === "activities" && description && (
             <ActivitiesStep
               description={description}
-              onBack={() => setStep("describe")}
+              onBack={() => setStep(skipDerive ? "describe" : "derive")}
               onContinue={handleActivities}
             />
           )}

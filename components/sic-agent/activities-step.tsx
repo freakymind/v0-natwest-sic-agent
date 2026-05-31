@@ -312,7 +312,7 @@ export function ActivitiesStep({
                   </p>
                 ) : group.loading ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Spinner size="sm" />
+                    <Spinner className="size-4 text-primary" />
                     <span>Finding best matches…</span>
                   </div>
                 ) : (

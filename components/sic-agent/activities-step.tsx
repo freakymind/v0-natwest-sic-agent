@@ -102,9 +102,14 @@ export function ActivitiesStep({
             prev.map((p, i) => {
               if (i !== idx) return p
               const suggestions: ActivitySuggestion[] = data.suggestions ?? []
-              // Auto-select the highest confidence suggestion
+              // Auto-select the best available match so the journey stays
+              // frictionless: prefer a high-confidence hit, then the top
+              // suggestion, then fall back to the first available code.
               const autoSelect =
-                suggestions.find((s) => s.confidence === "high")?.code ?? null
+                suggestions.find((s) => s.confidence === "high")?.code ??
+                suggestions[0]?.code ??
+                p.availableCodes[0]?.code ??
+                null
               return {
                 ...p,
                 suggestions,
@@ -148,6 +153,17 @@ export function ActivitiesStep({
       (g) => g.availableCodes.length === 0 || g.selectedCode !== null
     )
 
+  // The client's overall risk rating is driven by the highest-risk activity
+  // code selected across all of their SIC codes.
+  const selectedRisks = groups
+    .map((g) => g.availableCodes.find((a) => a.code === g.selectedCode)?.riskLevel)
+    .filter(Boolean) as ("low" | "medium" | "high")[]
+  const overallRisk: "low" | "medium" | "high" = selectedRisks.includes("high")
+    ? "high"
+    : selectedRisks.includes("medium")
+      ? "medium"
+      : "low"
+
   const handleContinue = () => {
     const selected: SelectedActivity[] = groups
       .filter((g) => g.selectedCode)
@@ -183,21 +199,47 @@ export function ActivitiesStep({
             />
             <div>
               <h2 className="font-serif text-lg font-semibold text-foreground">
-                Select your specific activities
+                Confirm your specific activity codes
               </h2>
               <p className="text-sm text-muted-foreground text-pretty">
-                Based on your description, we&apos;ve suggested the most likely
-                activity codes for each SIC. These 6-digit codes help us
-                understand exactly what your business does for compliance
-                purposes.
+                Now that we know what you do, we map each SIC code to a 6-digit
+                activity code. These are the codes that actually drive your
+                business&apos;s risk rating, so we&apos;ve pre-selected the best
+                match from your description — just confirm or change it.
               </p>
             </div>
           </div>
 
-          {anyLoading && (
+          {anyLoading ? (
             <div className="flex items-center gap-3 rounded-md border border-dashed border-border bg-muted/30 p-4 text-sm text-muted-foreground">
               <Spinner className="text-primary" />
-              <span>Analysing your business description…</span>
+              <span>Matching activity codes to your description…</span>
+            </div>
+          ) : (
+            <div
+              className={cn(
+                "flex items-center justify-between gap-3 rounded-md border p-3",
+                overallRisk === "low" && "border-green-200 bg-green-50",
+                overallRisk === "medium" && "border-amber-200 bg-amber-50",
+                overallRisk === "high" && "border-red-200 bg-red-50"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <RiskIcon level={overallRisk} />
+                <span className="text-sm font-medium text-foreground">
+                  Indicative risk rating
+                </span>
+              </div>
+              <span
+                className={cn(
+                  "rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase",
+                  overallRisk === "low" && "bg-green-100 text-green-700",
+                  overallRisk === "medium" && "bg-amber-100 text-amber-700",
+                  overallRisk === "high" && "bg-red-100 text-red-700"
+                )}
+              >
+                {overallRisk} risk
+              </span>
             </div>
           )}
         </CardContent>

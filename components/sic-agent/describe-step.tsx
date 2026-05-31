@@ -164,9 +164,11 @@ export function DescribeStep({
               <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                 {sic.section}
               </span>
-              <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
-                Primary
-              </span>
+              {secondarySics.length > 0 && (
+                <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                  Primary
+                </span>
+              )}
             </div>
             <h2 className="font-serif text-xl font-semibold text-foreground text-balance">
               {sic.title}
@@ -389,7 +391,7 @@ export function DescribeStep({
             </>
           ) : (
             <>
-              Continue
+              Looks right — find activity codes
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </>
           )}

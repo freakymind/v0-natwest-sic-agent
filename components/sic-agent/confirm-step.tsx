@@ -56,6 +56,20 @@ export function ConfirmStep({
     (a) => a.sicCode !== primary.code
   )
 
+  // Overall client risk is driven by the highest-risk activity code selected.
+  const risks = activities.map((a) => a.riskLevel)
+  const overallRisk: "low" | "medium" | "high" = risks.includes("high")
+    ? "high"
+    : risks.includes("medium")
+      ? "medium"
+      : "low"
+  const OverallRiskIcon =
+    overallRisk === "low"
+      ? ShieldCheck
+      : overallRisk === "medium"
+        ? Shield
+        : ShieldAlert
+
   return (
     <Card className="border-border">
       <CardContent className="space-y-6 p-5">
@@ -74,6 +88,54 @@ export function ConfirmStep({
             </p>
           </div>
         </div>
+
+        {activities.length > 0 && (
+          <section className="space-y-2">
+            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+              Risk assessment
+            </h3>
+            <div
+              className={cn(
+                "flex items-center justify-between gap-3 rounded-md border p-4",
+                overallRisk === "low" && "border-green-200 bg-green-50",
+                overallRisk === "medium" && "border-amber-200 bg-amber-50",
+                overallRisk === "high" && "border-red-200 bg-red-50"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <OverallRiskIcon
+                  className={cn(
+                    "h-6 w-6 shrink-0",
+                    overallRisk === "low" && "text-green-600",
+                    overallRisk === "medium" && "text-amber-500",
+                    overallRisk === "high" && "text-red-500"
+                  )}
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Indicative client risk rating
+                  </p>
+                  <p className="text-xs text-muted-foreground text-pretty">
+                    Derived from the {activities.length} activity code
+                    {activities.length === 1 ? "" : "s"} you confirmed.
+                  </p>
+                </div>
+              </div>
+              <span
+                className={cn(
+                  "rounded-full px-3 py-1 text-sm font-semibold uppercase",
+                  overallRisk === "low" && "bg-green-100 text-green-700",
+                  overallRisk === "medium" && "bg-amber-100 text-amber-700",
+                  overallRisk === "high" && "bg-red-100 text-red-700"
+                )}
+              >
+                {overallRisk} risk
+              </span>
+            </div>
+          </section>
+        )}
 
         <section className="space-y-2">
           <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">

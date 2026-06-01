@@ -127,7 +127,8 @@ export function DeriveStep({
               </h2>
               <p className="text-sm text-muted-foreground text-pretty">
                 The extra revenue streams you mentioned map to real SIC codes
-                that {companyName} hasn&apos;t registered at Companies House yet.
+                that{" "}<strong>{companyName}</strong>{" "}hasn&apos;t registered at
+                Companies House yet.
                 These still affect your risk profile, so confirm the ones we
                 should record as declared activities.
               </p>
@@ -158,9 +159,9 @@ export function DeriveStep({
                 <Info className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                 <span>
                   These will be added as your{" "}
-                  <span className="font-semibold">secondary</span> activities and
-                  flagged as &ldquo;not yet registered&rdquo; — your primary SIC
-                  code stays unchanged.
+                  <span className="font-semibold">secondary</span>
+                  {" "}activities and flagged as &ldquo;not yet registered&rdquo;
+                  {" "}— your primary SIC code stays unchanged.
                 </span>
               </div>
 

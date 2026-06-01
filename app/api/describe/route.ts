@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   if (mode === "secondary") {
     try {
       const { output } = await generateText({
-        model: "openai/gpt-4o-mini",
+        model: "google/gemini-2.0-flash",
         output: Output.object({ schema: secondarySchema }),
         system:
           "You help UK business customers describe additional income streams during bank onboarding. Be concise and plain-English. The user has multiple SIC codes registered — you are explaining ONE of the non-primary ones as an additional source of income.",
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
 
   try {
     const { output } = await generateText({
-      model: "openai/gpt-4o-mini",
+      model: "google/gemini-2.0-flash",
       output: Output.object({ schema: primarySchema }),
       system:
         "You help UK business customers describe their company to their bank during onboarding. Be concise, plain-English, and specific to UK SIC 2007 classifications. When suggesting additional revenue streams, focus on realistic adjacent income sources that similar businesses commonly add — not the core activity already covered by the SIC code.",

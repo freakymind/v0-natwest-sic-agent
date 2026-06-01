@@ -14,11 +14,11 @@ export function BrandHeader({
             className="flex h-9 w-9 items-center justify-center rounded-md bg-primary-foreground text-primary"
             aria-hidden="true"
           >
-            <span className="font-serif text-lg font-bold leading-none">N</span>
+            <span className="font-serif text-lg font-bold leading-none">AA</span>
           </div>
           <div className="flex flex-col leading-tight">
             <span className="font-serif text-base font-semibold tracking-tight">
-              NatWest
+              AA Bank
             </span>
             <span className="text-xs text-primary-foreground/80">
               Business Onboarding
